@@ -20,7 +20,7 @@ RSpec.describe "Users", type: :request do
   end
 
   # show
-  describe "GET /post/:id" do
+  describe "GET /user/:id" do
     let(:user) {create(:user)}
 
     before do
