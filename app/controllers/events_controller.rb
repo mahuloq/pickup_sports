@@ -1,9 +1,15 @@
 class EventsController < ApplicationController
     before_action :set_event, only: [:show, :update, :destroy]
+    before_action :authenticate_request, except: [:index]
 
     def index 
-        events = Event.all
-        render json: events, status: :ok 
+        events = Event.order(created_at: :desc).page(params[:page]).per(12)
+
+        render json: {
+            events: EventBlueprint.render_as_hash(events, view: :short),
+            total_pages: events.total_pages,
+            current_page: events.current_page
+        } 
     end
 
     def show
@@ -11,7 +17,7 @@ class EventsController < ApplicationController
     end
 
     def create
-        event = Event.new(event_params)
+        event = @current_user.created_events.new(event_params)
 
         if event.save
             render json: event, status: :created
@@ -43,6 +49,6 @@ class EventsController < ApplicationController
     end
 
     def event_params
-        params.permit(:title, :content, :start_date_time, :end_date_time, :guests, :user_id, :sport_ids => [])
+        params.permit(:title, :content, :start_date_time, :end_date_time, :guests, :sport_ids => [])
     end
 end

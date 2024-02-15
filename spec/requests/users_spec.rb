@@ -4,10 +4,11 @@ RSpec.describe "Users", type: :request do
   describe "GET /users" do
     
     let(:user) {create(:user)}
+    let(:token) {auth_token_for_users(user)}
 
     before do
       user
-      get "/users"
+      get "/users", headers: {Authorization: "Bearer #{token}"}
     end
     
     it 'returns a sucessful response' do
@@ -22,9 +23,9 @@ RSpec.describe "Users", type: :request do
   # show
   describe "GET /user/:id" do
     let(:user) {create(:user)}
-
+    let(:token) {auth_token_for_users(user)}
     before do
-      get "/users/#{user.id}"
+      get "/users/#{user.id}", headers: {Authorization: "Bearer #{token}"}
     end
 
     it 'returns a sucessful response' do
@@ -71,10 +72,11 @@ RSpec.describe "Users", type: :request do
   describe "PUT /users/:id" do
     context 'with valid params' do
       let(:user) {create(:user)}
+      let(:token) {auth_token_for_users(user)}
 
       before do
         user_attributes = { first_name: "John" }
-        put "/users/#{user.id}", params: user_attributes
+        put "/users/#{user.id}", params: user_attributes, headers: {Authorization: "Bearer #{token}"}
       end
 
       it 'updates a user' do
@@ -89,10 +91,11 @@ RSpec.describe "Users", type: :request do
 
     context 'with invalid params' do
       let(:user) {create(:user)}
-      
+      let(:token) {auth_token_for_users(user)}
+
       before do
         user_attributes = { first_name: nil }
-        put "/users/#{user.id}", params: user_attributes
+        put "/users/#{user.id}", params: user_attributes, params: user_attributes, headers: {Authorization: "Bearer #{token}"}
       end
 
       it 'returns a response with errors' do
@@ -105,9 +108,10 @@ RSpec.describe "Users", type: :request do
 
   describe 'DELETE /user/:id' do
     let(:user) {create(:user)}
+    let(:token) {auth_token_for_users(user)}
 
     before do
-      delete "/users/#{user.id}"
+      delete "/users/#{user.id}", headers: {Authorization: "Bearer #{token}"}
     end
 
     it 'deletes a user' do
