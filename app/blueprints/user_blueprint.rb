@@ -7,6 +7,10 @@ class UserBlueprint < Blueprinter::Base
         fields :username
     end
 
+        view :me do 
+            fields :first_name, :last_name, :username, :email
+        end
+
     view :profile do
        association :location, blueprint: LocationBlueprint 
        association :posts, blueprint: PostBlueprint, view: :profile do  |user, options|
