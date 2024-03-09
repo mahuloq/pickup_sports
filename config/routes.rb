@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   get 'web/bootstrap'
   get 'sessions/create'
+  resources :sports
+
+  
   scope '/' do
     post 'login', to: 'sessions#create'
   end
@@ -12,4 +15,6 @@ Rails.application.routes.draw do
   resources :users do
     get 'posts', to: "users#posts_index"
   end
+
+  
 end
