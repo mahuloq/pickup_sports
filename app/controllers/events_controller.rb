@@ -14,7 +14,7 @@ class EventsController < ApplicationController
 
 
     def show
-        render json: EventBlueprint.render_as_hash(@event, view: :long), status: :ok
+        render json: EventBlueprint.render_as_hash(@event, view: :long, current_user: @current_user), status: :ok
     end
 
     def create
@@ -43,6 +43,42 @@ class EventsController < ApplicationController
         end
     end
 
+def join
+    
+    event = Event.find(params[:id])
+   
+    #Check if current user is event creator
+    return render json: {error: "You can't join your own event."}, status: :unprocessable_entity if event.creator.id == @current_user.id
+
+    #Check if event is full
+    return render json: {error: "Event is full."}, status: :unprocessable_entity if event.participants.count >= event.guests
+
+    #Check if the current user is already a participant.
+    return render json: {error: "You are already registered for this event."}, status: :unprocessable_entity if event.participants.include?(@current_user)
+
+    event.participants << @current_user
+
+Pusher.trigger(event.creator.id,'notifications', {
+    event_id: event.id,
+    notification: "#{@current_user.username} has joined #{event.title}"
+})
+
+    head :ok
+end
+
+def leave
+
+    event = Event.find(params[:id])
+
+    event.participants.delete(@current_user)
+
+    Pusher.trigger(event.creator.id,'notifications', {
+        event_id: event.id,
+        notification: "#{@current_user.username} has left #{event.title}"
+    })
+    head :ok
+end
+    
     private
 
     def set_event 
